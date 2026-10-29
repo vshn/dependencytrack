@@ -1,0 +1,6 @@
+dependencies:
+- name: dependency-track
+  repository: oci://ghcr.io/dependencytrack/helm-charts
+  version: 2.9.0
+digest: sha256:5304c8c9940c8d2183d8e38bed428e87b4551ea121886479f18a6179626f3c43
+generated: "2026-10-29T11:21:19.267273075+01:00"

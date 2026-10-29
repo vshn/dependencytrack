@@ -1,0 +1,7 @@
+dependencytrack:
+  database:
+    jdbcUrl: "jdbc:postgresql://ai-tooling-db1.prod.infra.vshn.net:5432/dependency_track_test?reWriteBatchedInserts=true"
+ingress:
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    acme.cert-manager.io/http01-edit-in-place: "true"

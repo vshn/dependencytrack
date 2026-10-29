@@ -1,0 +1,439 @@
+# chartsnap: snapshot_version=v3
+---
+# Source: dependency-track/charts/dependencytrack/templates/serviceaccount.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: test-dependencytrack
+  namespace: test-namespace
+  labels:
+    helm.sh/chart: '###DYNAMIC_FIELD###'
+    app.kubernetes.io/part-of: dependencytrack
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: '###DYNAMIC_FIELD###'
+  annotations:
+    "helm.sh/resource-policy": "keep"
+automountServiceAccountToken: false
+---
+# Source: dependency-track/templates/kek-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-dependencytrack-kek
+  labels:
+    helm.sh/chart: '###DYNAMIC_FIELD###'
+    app.kubernetes.io/version: '###DYNAMIC_FIELD###'
+stringData:
+  kek-key:
+---
+# Source: dependency-track/templates/postgres-secret.yaml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: test-dependencytrack-db
+  labels:
+    helm.sh/chart: '###DYNAMIC_FIELD###'
+    app.kubernetes.io/version: '###DYNAMIC_FIELD###'
+stringData:
+  username:
+  password:
+---
+# Source: dependency-track/charts/dependencytrack/templates/file-storage/pvc.yaml
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: test-dependencytrack-storage
+  namespace: test-namespace
+  labels:
+    helm.sh/chart: '###DYNAMIC_FIELD###'
+    app.kubernetes.io/part-of: dependencytrack
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/version: '###DYNAMIC_FIELD###'
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  accessModes:
+  - ReadWriteOnce
+  resources:
+    requests:
+      storage: 10Gi
+---
+# Source: dependency-track/charts/dependencytrack/templates/api-server/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-dependencytrack-api-server
+  namespace: test-namespace
+  labels:
+    helm.sh/chart: '###DYNAMIC_FIELD###'
+    app.kubernetes.io/part-of: dependencytrack
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/name: dependencytrack-api-server
+    app.kubernetes.io/component: api-server
+    dependencytrack.io/role: web
+    app.kubernetes.io/version: '###DYNAMIC_FIELD###'
+spec:
+  type: ClusterIP
+  ports:
+  - name: web
+    port: 8080
+    targetPort: web
+    protocol: TCP
+    appProtocol: http
+  selector:
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/name: dependencytrack-api-server
+    app.kubernetes.io/component: api-server
+    dependencytrack.io/role: web
+---
+# Source: dependency-track/charts/dependencytrack/templates/api-server/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-dependencytrack-api-server-metrics
+  namespace: test-namespace
+  labels:
+    helm.sh/chart: '###DYNAMIC_FIELD###'
+    app.kubernetes.io/part-of: dependencytrack
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/name: dependencytrack-api-server
+    app.kubernetes.io/component: api-server
+    app.kubernetes.io/version: '###DYNAMIC_FIELD###'
+spec:
+  type: ClusterIP
+  clusterIP: None
+  publishNotReadyAddresses: true
+  ports:
+  - name: management
+    port: 9000
+    targetPort: management
+    protocol: TCP
+    appProtocol: http
+  selector:
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/name: dependencytrack-api-server
+    app.kubernetes.io/component: api-server
+---
+# Source: dependency-track/charts/dependencytrack/templates/frontend/service.yaml
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-dependencytrack-frontend
+  namespace: test-namespace
+  labels:
+    helm.sh/chart: '###DYNAMIC_FIELD###'
+    app.kubernetes.io/part-of: dependencytrack
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/name: dependencytrack-frontend
+    app.kubernetes.io/component: frontend
+    app.kubernetes.io/version: '###DYNAMIC_FIELD###'
+spec:
+  type: ClusterIP
+  ports:
+  - name: web
+    port: 8080
+    targetPort: web
+    protocol: TCP
+    appProtocol: http
+  selector:
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/name: dependencytrack-frontend
+    app.kubernetes.io/component: frontend
+---
+# Source: dependency-track/charts/dependencytrack/templates/api-server/deployment-web.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-dependencytrack-api-server
+  namespace: test-namespace
+  labels:
+    helm.sh/chart: '###DYNAMIC_FIELD###'
+    app.kubernetes.io/part-of: dependencytrack
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/name: dependencytrack-api-server
+    app.kubernetes.io/component: api-server
+    dependencytrack.io/role: web
+    app.kubernetes.io/version: '###DYNAMIC_FIELD###'
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: test
+      app.kubernetes.io/name: dependencytrack-api-server
+      app.kubernetes.io/component: api-server
+      dependencytrack.io/role: web
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: test
+        app.kubernetes.io/name: dependencytrack-api-server
+        app.kubernetes.io/component: api-server
+        dependencytrack.io/role: web
+        helm.sh/chart: '###DYNAMIC_FIELD###'
+        app.kubernetes.io/version: '###DYNAMIC_FIELD###'
+    spec:
+      serviceAccountName: test-dependencytrack
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      terminationGracePeriodSeconds: 120
+      securityContext:
+        fsGroup: 1000
+      containers:
+      - name: api-server
+        image: '###DYNAMIC_FIELD###'
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          limits:
+            memory: 2Gi
+          requests:
+            cpu: 500m
+            memory: 2Gi
+        env:
+        - name: DT_METRICS_ENABLED
+          value: "true"
+        - name: DT_MANAGEMENT_PORT
+          value: "9000"
+        - name: DT_DATASOURCE_URL
+          value: "jdbc:postgresql://postgresql:5432/dtrack?reWriteBatchedInserts=true"
+        - name: DT_DATASOURCE_USERNAME
+          value: "${file::/etc/dt/secrets/db/username}"
+        - name: DT_DATASOURCE_PASSWORD
+          value: "${file::/etc/dt/secrets/db/password}"
+        - name: DT_SECRET_MANAGEMENT_PROVIDER
+          value: "database"
+        - name: DT_SECRET_MANAGEMENT_DATABASE_KEK
+          value: "${file::/etc/dt/secrets/sm/database/kek/kek-key}"
+        - name: DT_FILE_STORAGE_PROVIDER
+          value: "local"
+        - name: DT_FILE_STORAGE_LOCAL_DIRECTORY
+          value: "/data"
+        ports:
+        - name: web
+          containerPort: 8080
+          protocol: TCP
+        - name: management
+          containerPort: 9000
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            scheme: HTTP
+            port: management
+            path: /health/live
+          failureThreshold: 3
+          initialDelaySeconds: 10
+          periodSeconds: 15
+          successThreshold: 1
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            scheme: HTTP
+            port: management
+            path: /health/ready
+          failureThreshold: 3
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          successThreshold: 1
+          timeoutSeconds: 5
+        startupProbe:
+          httpGet:
+            scheme: HTTP
+            port: management
+            path: /health/started
+          failureThreshold: 60
+          initialDelaySeconds: 10
+          periodSeconds: 30
+          successThreshold: 1
+          timeoutSeconds: 5
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+        - name: db-secret
+          mountPath: /etc/dt/secrets/db
+          readOnly: true
+        - name: sm-database-kek
+          mountPath: /etc/dt/secrets/sm/database/kek
+          readOnly: true
+        - name: file-storage
+          mountPath: /data
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      - name: db-secret
+        secret:
+          secretName: test-dependencytrack-db
+          defaultMode: 0444
+          items:
+          - key: username
+            path: username
+          - key: password
+            path: password
+      - name: sm-database-kek
+        secret:
+          secretName: test-dependencytrack-kek
+          defaultMode: 0444
+          items:
+          - key: kek-key
+            path: kek-key
+      - name: file-storage
+        persistentVolumeClaim:
+          claimName: test-dependencytrack-storage
+      initContainers: []
+---
+# Source: dependency-track/charts/dependencytrack/templates/frontend/deployment.yaml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-dependencytrack-frontend
+  namespace: test-namespace
+  labels:
+    helm.sh/chart: '###DYNAMIC_FIELD###'
+    app.kubernetes.io/part-of: dependencytrack
+    app.kubernetes.io/managed-by: Helm
+    app.kubernetes.io/instance: test
+    app.kubernetes.io/name: dependencytrack-frontend
+    app.kubernetes.io/component: frontend
+    app.kubernetes.io/version: '###DYNAMIC_FIELD###'
+spec:
+  replicas: 1
+  revisionHistoryLimit: 5
+  strategy:
+    type: RollingUpdate
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: test
+      app.kubernetes.io/name: dependencytrack-frontend
+      app.kubernetes.io/component: frontend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/instance: test
+        app.kubernetes.io/name: dependencytrack-frontend
+        app.kubernetes.io/component: frontend
+        helm.sh/chart: '###DYNAMIC_FIELD###'
+        app.kubernetes.io/version: '###DYNAMIC_FIELD###'
+    spec:
+      serviceAccountName: test-dependencytrack
+      automountServiceAccountToken: false
+      enableServiceLinks: false
+      securityContext:
+        fsGroup: 1000
+      containers:
+      - name: frontend
+        image: '###DYNAMIC_FIELD###'
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: false
+          runAsNonRoot: true
+          seccompProfile:
+            type: RuntimeDefault
+        resources:
+          limits:
+            memory: 128Mi
+          requests:
+            cpu: 150m
+            memory: 64Mi
+        env:
+        - name: API_BASE_URL
+          value: ""
+        ports:
+        - name: web
+          containerPort: 8080
+          protocol: TCP
+        livenessProbe:
+          httpGet:
+            scheme: HTTP
+            port: web
+            path: /static/config.json
+          failureThreshold: 3
+          initialDelaySeconds: 5
+          periodSeconds: 15
+          successThreshold: 1
+          timeoutSeconds: 5
+        readinessProbe:
+          httpGet:
+            scheme: HTTP
+            port: web
+            path: /static/config.json
+          failureThreshold: 3
+          initialDelaySeconds: 5
+          periodSeconds: 15
+          successThreshold: 1
+          timeoutSeconds: 5
+        volumeMounts:
+        - name: tmp
+          mountPath: /tmp
+      volumes:
+      - name: tmp
+        emptyDir: {}
+      initContainers: []
+---
+# Source: dependency-track/templates/ingress.yaml
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: test-dependencytrack
+  labels:
+spec:
+  tls:
+  - hosts:
+    - "a"
+    - "b"
+    secretName: test-dependencytrack-tls
+  rules:
+  - host: "a"
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: test-dependencytrack-api-server
+            port:
+              name: web
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: test-dependencytrack-frontend
+            port:
+              number: 8080
+  - host: "b"
+    http:
+      paths:
+      - path: /api
+        pathType: Prefix
+        backend:
+          service:
+            name: test-dependencytrack-api-server
+            port:
+              name: web
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: test-dependencytrack-frontend
+            port:
+              number: 8080

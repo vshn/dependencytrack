@@ -1,9 +1,16 @@
 apiVersion: v2
-name: dependencytrack-wrapper
+name: dependency-track
 description: Wrapper chart for DependencyTrack on AppFlow
-version: 0.0.1
+
+type: application
+
+version: 0.1.1
+
+# renovate: datasource=docker depName=dependencytrack/api-server
+appVersion: "5.2.1"
+
 dependencies:
   - name: dependency-track
-    version: 2.7.0
-    repository: https://dependencytrack.github.io/helm-charts
+    version: 2.9.0
+    repository: oci://ghcr.io/dependencytrack/helm-charts
     alias: dependencytrack

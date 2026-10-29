@@ -1,0 +1,58 @@
+{{- if .Values.ingress.enabled -}}
+{{- $subChartValues:= dict
+  "Values" .Values.dependencytrack
+  "Chart" .Chart
+  "Release" .Release }}
+{{- $fullName := include "dependencytrack.fullname" $subChartValues }}
+{{- $apiSvc := include "dependencytrack.apiServer.webFullname" $subChartValues }}
+{{- $rootSvc := ternary (include "dependencytrack.frontend.fullname" $subChartValues) $apiSvc .Values.dependencytrack.frontend.enabled }}
+{{- $rootPort := ternary (int .Values.dependencytrack.frontend.service.port) (int .Values.dependencytrack.apiServer.service.port) .Values.dependencytrack.frontend.enabled }}
+{{- $hosts := .Values.ingress.hosts }}
+{{- if (not .Values.env.INGRESS_HOSTS | empty) }}
+{{- $hosts = (splitList "," .Values.env.INGRESS_HOSTS )}}
+{{- end }}
+{{- $Values := .Values}}
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ $fullName }}
+  labels:
+    {{- with .Values.ingress.labels }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.ingress.className }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
+  tls:
+    - hosts:
+        {{- range $hosts }}
+        - {{ . | quote }}
+        {{- end }}
+      secretName: {{ .Values.ingress.secretName | default (printf "%s-%s-tls" .Release.Name .Chart.Name) }}
+  rules:
+    {{- range $hosts }}
+    - host: {{ . | quote }}
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $apiSvc }}
+                port:
+                  name: web
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ $rootSvc }}
+                port:
+                  number: {{ $rootPort }}
+    {{- end }}
+{{- end }}
