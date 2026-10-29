@@ -1,0 +1,19 @@
+env:
+  KUBECONFIG: /tmp/github-ci.kubeconfig
+jobs:
+  stop:
+    environment: test
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+    - uses: ./.github/actions/setup
+      with:
+        KUBECONFIG_DATA: "${{ secrets.KUBECONFIG_TEST }}"
+    - env: {}
+      name: Helm Chart stop
+      run: |
+        cp "${KUBECONFIG}" ".github-ci.kubeconfig"
+        docker run -v "${PWD}:/data" -w /data ghcr.io/appuio/helm-v4:latest /bin/bash -c "cp .github-ci.kubeconfig /tmp/github-ci.kubeconfig; chmod 400 /tmp/github-ci.kubeconfig; /bin/helm uninstall 'test' --namespace '${NAMESPACE}' --kubeconfig /tmp/github-ci.kubeconfig"
+name: Stop test
+"on":
+  workflow_dispatch: {}

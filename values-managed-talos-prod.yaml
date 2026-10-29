@@ -1,0 +1,3 @@
+dependencytrack:
+  database:
+    jdbcUrl: "jdbc:postgresql://ai-tooling-db1.prod.infra.vshn.net:5432/dependency_track_prod?reWriteBatchedInserts=true"

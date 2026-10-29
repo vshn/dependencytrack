@@ -1,3 +1,24 @@
 dependencytrack:
-  ingress:
-    enabled: true
+  image:
+    registry: dockerhub.vshn.net
+  apiServer:
+    image:
+      # renovate: datasource=docker depName=dependencytrack/api-server
+      tag: 5.2.1@sha256:a7ce7a42928c6c03e94e8255e2ee871f5268f55b638a69729cae7afc47ef43b8
+  frontend:
+    image:
+      # renovate: datasource=docker depName=dependencytrack/frontend
+      tag: 5.2.1@sha256:1c0f63b083af8e89ff4ede5e7ed5cfc4e23ab871fa140ed101e8dc56f53eb51c
+  database:
+    existingSecret:
+      # That existingSecret name is used with the helm instance name in it.
+      name: "true"
+  secretManagement:
+    database:
+      kek:
+        existingSecret:
+          # That existingSecret name is used with the helm instance name in it.
+          name: "true"
+          key: "kek-key"
+ingress:
+  enabled: true
